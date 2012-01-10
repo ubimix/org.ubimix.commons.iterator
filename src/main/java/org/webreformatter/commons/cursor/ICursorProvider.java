@@ -16,6 +16,6 @@ public interface ICursorProvider<P, T, E extends Exception> {
      * @param parameter the parameter used to generate a new cursor instance
      * @return a new cursor
      */
-    ICursor<T, E> getCursor(P parameter);
+    ICursor<T, E> getCursor(P parameter) throws E;
 
 }

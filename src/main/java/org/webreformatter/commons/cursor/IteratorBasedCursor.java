@@ -23,7 +23,7 @@ public class IteratorBasedCursor<T, E extends Exception>
     }
 
     public IteratorBasedCursor(Iterator<? extends T> iterator) {
-        fIterator = iterator;
+        setIterator(iterator);
     }
 
     public IteratorBasedCursor(T... list) {
@@ -45,6 +45,11 @@ public class IteratorBasedCursor<T, E extends Exception>
         }
         fCurrent = fIterator.next();
         return true;
+    }
+
+    protected void setIterator(Iterator<? extends T> iterator) {
+        fIterator = iterator;
+        fCurrent = null;
     }
 
     @Override

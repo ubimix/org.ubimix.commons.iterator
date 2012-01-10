@@ -75,7 +75,6 @@ public class MergeCursor<T, E extends Exception> implements ICursor<T, E> {
     private Status fStatus = Status.NOT_STARTED;
 
     public MergeCursor() {
-
     }
 
     public MergeCursor(
@@ -125,14 +124,16 @@ public class MergeCursor<T, E extends Exception> implements ICursor<T, E> {
         return fCurrent;
     }
 
-    protected void init(Collection<ICursor<T, E>> cursors) {
+    protected void init(Collection<? extends ICursor<T, E>> cursors) {
         fList.clear();
         fCurrent = null;
         fStatus = Status.NOT_STARTED;
         fList.addAll(cursors);
     }
 
-    public void init(Comparator<T> comparator, Collection<ICursor<T, E>> cursors) {
+    public void init(
+        Comparator<T> comparator,
+        Collection<? extends ICursor<T, E>> cursors) {
         fComparator = comparator;
         init(cursors);
     }
