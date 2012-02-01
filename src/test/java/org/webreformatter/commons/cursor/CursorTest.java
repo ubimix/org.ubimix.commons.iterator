@@ -29,6 +29,10 @@ public class CursorTest extends TestCase {
         return a;
     }
 
+    private <T> T[] array(T... array) {
+        return array;
+    }
+
     private String[] empty() {
         return new String[0];
     }
@@ -103,7 +107,7 @@ public class CursorTest extends TestCase {
         testDiffCursor("A", "A", "[~A]");
         testDiffCursor("ABCF", "ADEF", "[~A][-B][-C][+D][+E][~F]");
         testDiffCursor("ACDF", "ABEF", "[~A][+B][-C][-D][+E][~F]");
-    }
+    };
 
     private void testDiffCursor(String first, String second, String control) {
         ICursor<String, RuntimeException> firstCursor = newCharCursor(first);
@@ -134,7 +138,7 @@ public class CursorTest extends TestCase {
         }
         cursor.close();
         assertEquals(control, buf.toString());
-    };
+    }
 
     public void testFilteringCursor() throws Exception {
         testFilteringCursor(
@@ -399,10 +403,46 @@ public class CursorTest extends TestCase {
         test(cursor, control);
     }
 
+    private void testSequential(
+        final String[][] chuncks,
+        final String... control) throws RuntimeException {
+        SequentialCursor<String, RuntimeException> cursor = new SequentialCursor<String, RuntimeException>() {
+            int fPos;
+
+            @Override
+            protected ICursor<String, RuntimeException> loadNextCursor(
+                ICursor<String, RuntimeException> cursor)
+                throws RuntimeException {
+                if (fPos >= chuncks.length) {
+                    return null;
+                }
+                ICursor<String, RuntimeException> result = new IteratorBasedCursor<String, RuntimeException>(
+                    Arrays.asList(chuncks[fPos++]));
+                return result;
+            }
+        };
+        test(cursor, control);
+    }
+
     public void testSequentialCursor() throws Exception {
         testSequential(3, "a", "b", "c", "d", "e", "f", "g", "h", "i");
         testSequential(1, "a", "b", "c", "d", "e", "f", "g", "h", "i");
         testSequential(30, "a", "b", "c", "d", "e", "f", "g", "h", "i");
+        testSequential(
+            array(
+                array("a", "b"),
+                array("c", "d"),
+                array("e", "f"),
+                array("g", "h", "i")),
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i");
     }
 
 }
