@@ -55,7 +55,7 @@ public abstract class TreeCursor<T, E extends Exception>
     /**
      * @see org.webreformatter.commons.cursor.ICursor#getCurrent()
      */
-    public T getCurrent() throws E {
+    public T getCurrent() {
         return fCurrent;
     }
 

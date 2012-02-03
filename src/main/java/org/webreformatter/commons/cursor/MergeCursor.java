@@ -5,7 +5,7 @@ package org.webreformatter.commons.cursor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -62,32 +62,47 @@ public class MergeCursor<T, E extends Exception> implements ICursor<T, E> {
 
     }
 
+    public static class DefaultCursorComparator<T, E extends Exception>
+        implements
+        Comparator<ICursor<T, E>> {
+
+        private Comparator<T> fComparator;
+
+        public DefaultCursorComparator(Comparator<T> comparator) {
+            fComparator = comparator;
+        }
+
+        public int compare(ICursor<T, E> o1, ICursor<T, E> o2) {
+            T v1 = o1.getCurrent();
+            T v2 = o2.getCurrent();
+            return fComparator.compare(v1, v2);
+        }
+    }
+
     private enum Status {
         NOT_STARTED, STARTED, STOPPED
     }
 
-    protected Comparator<T> fComparator;
+    private Comparator<ICursor<T, E>> fComparator;
 
-    private T fCurrent;
+    private T fCurrentValue;
 
-    private List<ICursor<T, E>> fList = new ArrayList<ICursor<T, E>>();
+    protected List<ICursor<T, E>> fList = new ArrayList<ICursor<T, E>>();
 
     private Status fStatus = Status.NOT_STARTED;
 
     public MergeCursor() {
     }
 
-    public MergeCursor(
-        Comparator<T> comparator,
-        Collection<ICursor<T, E>> cursors) {
-        init(comparator, cursors);
-    }
-
     /**
      * 
      */
     public MergeCursor(Comparator<T> comparator, ICursor<T, E>... cursors) {
-        init(comparator, cursors);
+        init(new DefaultCursorComparator<T, E>(comparator), cursors);
+    }
+
+    public MergeCursor(Comparator<T> comparator, List<ICursor<T, E>> cursors) {
+        init(new DefaultCursorComparator<T, E>(comparator), cursors);
     }
 
     public void close() throws E {
@@ -120,32 +135,34 @@ public class MergeCursor<T, E extends Exception> implements ICursor<T, E> {
         throw new CompositeException(msg, errors);
     }
 
-    public T getCurrent() throws E {
-        return fCurrent;
-    }
-
-    protected void init(Collection<? extends ICursor<T, E>> cursors) {
-        fList.clear();
-        fCurrent = null;
-        fStatus = Status.NOT_STARTED;
-        fList.addAll(cursors);
+    public T getCurrent() {
+        return fCurrentValue;
     }
 
     public void init(
-        Comparator<T> comparator,
-        Collection<? extends ICursor<T, E>> cursors) {
-        fComparator = comparator;
-        init(cursors);
-    }
-
-    public void init(Comparator<T> comparator, ICursor<T, E>... cursors) {
+        Comparator<ICursor<T, E>> comparator,
+        ICursor<T, E>... cursors) {
         fComparator = comparator;
         init(Arrays.asList(cursors));
     }
 
+    public void init(
+        Comparator<ICursor<T, E>> comparator,
+        List<ICursor<T, E>> cursors) {
+        fComparator = comparator;
+        init(cursors);
+    }
+
+    protected void init(List<ICursor<T, E>> cursors) {
+        fList.clear();
+        fCurrentValue = null;
+        fStatus = Status.NOT_STARTED;
+        fList.addAll(cursors);
+    }
+
     private void insert(List<ICursor<T, E>> list, ICursor<T, E> cursor)
         throws E {
-        int pos = searchPosition(list, cursor);
+        int pos = Collections.binarySearch(list, cursor, fComparator);
         if (pos < 0) {
             pos = -(pos + 1);
         }
@@ -174,7 +191,7 @@ public class MergeCursor<T, E extends Exception> implements ICursor<T, E> {
         if (!fList.isEmpty()) {
             result = true;
             ICursor<T, E> cursor = fList.remove(0);
-            setCurrentValue(cursor);
+            setCurrentCursor(cursor);
             if (cursor.loadNext()) {
                 insert(fList, cursor);
             } else {
@@ -204,34 +221,17 @@ public class MergeCursor<T, E extends Exception> implements ICursor<T, E> {
     protected void onEndIterations() throws E {
     }
 
-    private int searchPosition(List<ICursor<T, E>> list, ICursor<T, E> cursor)
-        throws E {
-        T obj = cursor.getCurrent();
-        int low = 0;
-        int high = list.size() - 1;
-        while (low <= high) {
-            int mid = (low + high) >>> 1;
-            ICursor<T, E> midCursor = list.get(mid);
-            T midObj = midCursor.getCurrent();
-            int cmp = fComparator.compare(midObj, obj);
-            if (cmp < 0) {
-                low = mid + 1;
-            } else if (cmp > 0) {
-                high = mid - 1;
-            } else {
-                return mid; // key found
-            }
-        }
-        return -(low + 1); // key not found
-    }
-
-    protected void setCurrentValue(ICursor<T, E> cursor) throws E {
-        fCurrent = cursor.getCurrent();
+    protected void setCurrentCursor(ICursor<T, E> cursor) throws E {
+        fCurrentValue = cursor.getCurrent();
     }
 
     @Override
     public String toString() {
-        return "MergeCursor[" + fCurrent + ":" + fList.toString() + "]";
+        try {
+            return "MergeCursor[" + getCurrent() + ":" + fList.toString() + "]";
+        } catch (Exception e) {
+            return "MergeCursor[" + fList.toString() + "]";
+        }
     }
 
 }

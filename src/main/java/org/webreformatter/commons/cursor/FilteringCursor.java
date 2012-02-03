@@ -36,7 +36,7 @@ public abstract class FilteringCursor<T, E extends Exception>
     /**
      * @see com.cogniumsystems.socialkiosk.gwtapp.server.utils.ICursor#getCurrent()
      */
-    public T getCurrent() throws E {
+    public T getCurrent() {
         return fCurrent;
     }
 

@@ -46,7 +46,7 @@ public abstract class AbstractRangeCursor<T, E extends Exception>
         return result;
     }
 
-    public T getCurrent() throws E {
+    public T getCurrent() {
         return fCurrent;
     }
 

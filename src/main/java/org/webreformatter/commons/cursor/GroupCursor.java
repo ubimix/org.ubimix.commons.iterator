@@ -8,11 +8,72 @@ package org.webreformatter.commons.cursor;
  * 
  * @author kotelnikov
  */
-public abstract class GroupCursor<T, E extends Exception>
-    implements
-    ICursor<T, E> {
+public class GroupCursor<T, E extends Exception> implements ICursor<T, E> {
+
+    public static class GroupListener<T, E extends Exception>
+        implements
+        IGroupListener<T, E> {
+
+        public void beginGroup(T value) throws E {
+        }
+
+        public boolean compare(T prev, T current) throws E {
+            return prev == null || current == null ? prev == current : prev
+                .equals(current);
+        }
+
+        public void endGroup(T value) throws E {
+        }
+
+        public void onGroup(T value) throws E {
+        }
+
+    }
+
+    public static interface IGroupListener<T, E extends Exception> {
+
+        /**
+         * This method is used to notify that beginning a new group of values
+         * with the specified value.
+         * 
+         * @param value
+         */
+        void beginGroup(T value) throws E;
+
+        /**
+         * This method could be overloaded to re-define the comparison strategy
+         * of the given values.
+         * 
+         * @param prev previous value
+         * @param current the current value
+         * @return
+         * @throws E
+         */
+        boolean compare(T prev, T current) throws E;
+
+        /**
+         * This method is used to notify about the end of the group of values.
+         * 
+         * @param value the end of the group of these value.
+         */
+        void endGroup(T value) throws E;
+
+        /**
+         * This method is called to notify that the specified cursor returns a
+         * group value. Begin and the end of the group are delimited by
+         * {@link #beginGroup(Object)} and {@link #endGroup(Object)} method
+         * calls. This method should be overloaded in subclasses to do something
+         * useful with the group.
+         * 
+         * @param value
+         */
+        void onGroup(T value) throws E;
+
+    }
 
     protected ICursor<T, E> fCursor;
+
+    private IGroupListener<T, E> fListener;
 
     private T fPrevValue;
 
@@ -20,21 +81,17 @@ public abstract class GroupCursor<T, E extends Exception>
      * @param comparator
      * @param cursors
      */
-    public GroupCursor(ICursor<T, E> cursor) {
+    public GroupCursor(ICursor<T, E> cursor, IGroupListener<T, E> listener) {
+        this(listener);
         init(cursor);
     }
 
-    protected void init(ICursor<T, E> cursor) {
-        fCursor = cursor;
-    }
-
     /**
-     * This method is used to notify that beginning a new group of values with
-     * the specified value.
-     * 
-     * @param value
+     * @param comparator
      */
-    protected abstract void beginGroup(T value) throws E;
+    public GroupCursor(IGroupListener<T, E> listener) {
+        fListener = listener;
+    }
 
     /**
      * @see org.webreformatter.commons.cursor.ICursor#close()
@@ -47,30 +104,14 @@ public abstract class GroupCursor<T, E extends Exception>
     }
 
     /**
-     * This method could be overloaded to re-define the comparison strategy of
-     * the given values.
-     * 
-     * @param prev previous value
-     * @param current the current value
-     * @return
-     * @throws E
-     */
-    protected boolean compare(T prev, T current) throws E {
-        return prev.equals(current);
-    }
-
-    /**
-     * This method is used to notify about the end of the group of values.
-     * 
-     * @param value the end of the group of these value.
-     */
-    protected abstract void endGroup(T value) throws E;
-
-    /**
      * @see org.webreformatter.commons.cursor.ICursor#getCurrent()
      */
-    public T getCurrent() throws E {
+    public T getCurrent() {
         return fCursor.getCurrent();
+    }
+
+    protected void init(ICursor<T, E> cursor) {
+        fCursor = cursor;
     }
 
     /**
@@ -82,14 +123,14 @@ public abstract class GroupCursor<T, E extends Exception>
             result = true;
             T fCurrent = fCursor.getCurrent();
             boolean equals = fPrevValue != null
-                && compare(fPrevValue, fCurrent);
+                && fListener.compare(fPrevValue, fCurrent);
             if (!equals) {
                 if (fPrevValue != null) {
-                    endGroup(fPrevValue);
+                    fListener.endGroup(fPrevValue);
                 }
-                beginGroup(fCurrent);
+                fListener.beginGroup(fCurrent);
             }
-            onGroup(fCurrent);
+            fListener.onGroup(fCurrent);
             fPrevValue = fCurrent;
         } else {
             onEndIterations();
@@ -99,20 +140,9 @@ public abstract class GroupCursor<T, E extends Exception>
 
     private void onEndIterations() throws E {
         if (fPrevValue != null) {
-            endGroup(fPrevValue);
+            fListener.endGroup(fPrevValue);
             fPrevValue = null;
         }
     }
-
-    /**
-     * This method is called to notify that the specified cursor returns a group
-     * value. Begin and the end of the group are delimited by
-     * {@link #beginGroup(Object)} and {@link #endGroup(Object)} method calls.
-     * This method should be overloaded in subclasses to do something useful
-     * with the group.
-     * 
-     * @param value
-     */
-    protected abstract void onGroup(T value) throws E;
 
 }

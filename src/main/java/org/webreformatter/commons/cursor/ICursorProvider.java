@@ -9,13 +9,14 @@ package org.webreformatter.commons.cursor;
  * @param <T> the type of the nodes returned by the cursor
  * @param <E> the exception
  */
-public interface ICursorProvider<P, T, E extends Exception> {
+public interface ICursorProvider<P, E extends Exception, C extends ICursor<?, E>> {
+
     /**
      * Returns an iterator corresponding to the specified parameter.
      * 
      * @param parameter the parameter used to generate a new cursor instance
      * @return a new cursor
      */
-    ICursor<T, E> getCursor(P parameter) throws E;
+    C getCursor(P parameter) throws E;
 
 }

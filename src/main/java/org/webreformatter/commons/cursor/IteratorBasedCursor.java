@@ -34,7 +34,7 @@ public class IteratorBasedCursor<T, E extends Exception>
         fIterator = null;
     }
 
-    public T getCurrent() throws E {
+    public T getCurrent() {
         return fCurrent;
     }
 

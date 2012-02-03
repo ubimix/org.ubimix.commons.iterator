@@ -10,6 +10,11 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.webreformatter.commons.cursor.DiffCursor.DiffCursorListener;
+import org.webreformatter.commons.cursor.DiffCursor.IDiffCursorListener;
+import org.webreformatter.commons.cursor.GroupCursor.GroupListener;
+import org.webreformatter.commons.cursor.GroupCursor.IGroupListener;
+
 /**
  * @author kotelnikov
  */
@@ -101,43 +106,86 @@ public class CursorTest extends TestCase {
     }
 
     public void testDiffCursor() throws Exception {
-        testDiffCursor("", "", "");
-        testDiffCursor("A", "", "[-A]");
-        testDiffCursor("", "A", "[+A]");
-        testDiffCursor("A", "A", "[~A]");
-        testDiffCursor("ABCF", "ADEF", "[~A][-B][-C][+D][+E][~F]");
-        testDiffCursor("ACDF", "ABEF", "[~A][+B][-C][-D][+E][~F]");
+        testDiffCursor("A", "AA", "[~A][+A]", "AAA");
+        testDiffCursor("AA", "A", "[~A][-A]", "AAA");
+        testDiffCursor("AA", "B", "[-A][-A][+B]", "AAB");
+        testDiffCursor("B", "AA", "[+A][+A][-B]", "AAB");
+        testDiffCursor("", "", "", "");
+        testDiffCursor("A", "", "[-A]", "A");
+        testDiffCursor("", "A", "[+A]", "A");
+        testDiffCursor("A", "A", "[~A]", "AA");
+        testDiffCursor("ABCF", "ADEF", "[~A][-B][-C][+D][+E][~F]", "AABCDEFF");
+        testDiffCursor(
+            "ABCF",
+            "AADEF",
+            "[~A][+A][-B][-C][+D][+E][~F]",
+            "AAABCDEFF");
+        testDiffCursor(
+            "AABCF",
+            "ADEF",
+            "[~A][-A][-B][-C][+D][+E][~F]",
+            "AAABCDEFF");
+        testDiffCursor(
+            "AABCF",
+            "ADEF",
+            "[~A][-A][-B][-C][+D][+E][~F]",
+            "AAABCDEFF");
+        testDiffCursor("ACDF", "ABEF", "[~A][+B][-C][-D][+E][~F]", "AABCDEFF");
+        testDiffCursor(
+            "13AB",
+            "2AAC",
+            "[-1][+2][-3][~A][+A][-B][+C]",
+            "123AAABC");
+        testDiffCursor(
+            "13AB",
+            "24AAC",
+            "[-1][+2][-3][+4][~A][+A][-B][+C]",
+            "1234AAABC");
+        testDiffCursor(
+            "1AD",
+            "1AAAAABC",
+            "[~1][~A][+A][+A][+A][+A][+B][+C][-D]",
+            "11AAAAAABCD");
     };
 
-    private void testDiffCursor(String first, String second, String control) {
+    private void testDiffCursor(
+        String first,
+        String second,
+        String control,
+        String result) {
         ICursor<String, RuntimeException> firstCursor = newCharCursor(first);
         ICursor<String, RuntimeException> secondCursor = newCharCursor(second);
         final StringBuffer buf = new StringBuffer();
-        DiffCursor<String, RuntimeException> cursor = new DiffCursor<String, RuntimeException>(
-            STRING_COMPARATOR,
-            firstCursor,
-            secondCursor) {
-
+        IDiffCursorListener<String, RuntimeException> listener = new DiffCursorListener<String, RuntimeException>() {
             @Override
-            protected void onValueAdded(String value) throws RuntimeException {
+            public void onValueAdded(String value) {
                 buf.append("[+").append(value).append("]");
             }
 
             @Override
-            protected void onValueRemoved(String value) throws RuntimeException {
+            public void onValueRemoved(String value) {
                 buf.append("[-").append(value).append("]");
             }
 
             @Override
-            protected void onValueUpdated(String firstValue, String secondValue)
-                throws RuntimeException {
+            public void onValueUpdated(String firstValue, String secondValue) {
                 buf.append("[~").append(firstValue).append("]");
             }
+
         };
+        DiffCursor<String, RuntimeException> cursor = new DiffCursor<String, RuntimeException>(
+            STRING_COMPARATOR,
+            firstCursor,
+            secondCursor,
+            listener);
+        StringBuilder test = new StringBuilder();
         while (cursor.loadNext()) {
+            String str = cursor.getCurrent();
+            test.append(str);
         }
         cursor.close();
         assertEquals(control, buf.toString());
+        assertEquals(result, test.toString());
     }
 
     public void testFilteringCursor() throws Exception {
@@ -232,6 +280,9 @@ public class CursorTest extends TestCase {
         testGroupMergeCursor("");
         testGroupMergeCursor("[A:1]", "A");
         testGroupMergeCursor("[A:2]", "A", "A");
+        testGroupMergeCursor("[A:4]", "AA", "AA");
+        testGroupMergeCursor("[A:5][B:1][C:1]", "AAB", "AAAC");
+        testGroupMergeCursor("[A:4][B:1][C:1][A:1]", "AAB", "AACA");
         testGroupMergeCursor("[A:4]", "A", "A", "A", "A");
         testGroupMergeCursor("[A:5][B:1]", "A", "AA", "AB", "A");
         testGroupMergeCursor("[A:1][B:1][C:1][D:1]", "A", "B", "C", "D");
@@ -262,26 +313,28 @@ public class CursorTest extends TestCase {
         String control,
         ICursor<String, RuntimeException> cursor) {
         final StringBuffer buf = new StringBuffer();
-        GroupCursor<String, RuntimeException> groupCursor = new GroupCursor<String, RuntimeException>(
-            cursor) {
+        IGroupListener<String, RuntimeException> listener = new GroupListener<String, RuntimeException>() {
             int fCounter;
 
             @Override
-            protected void beginGroup(String value) throws RuntimeException {
+            public void beginGroup(String value) throws RuntimeException {
                 fCounter = 0;
             }
 
             @Override
-            protected void endGroup(String value) throws RuntimeException {
+            public void endGroup(String value) throws RuntimeException {
                 buf.append("[" + value + ":" + fCounter + "]");
                 fCounter = 0;
             }
 
             @Override
-            protected void onGroup(String value) throws RuntimeException {
+            public void onGroup(String value) throws RuntimeException {
                 fCounter++;
             }
         };
+        GroupCursor<String, RuntimeException> groupCursor = new GroupCursor<String, RuntimeException>(
+            cursor,
+            listener);
         while (groupCursor.loadNext()) {
         }
         groupCursor.close();
