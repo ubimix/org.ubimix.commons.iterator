@@ -17,19 +17,24 @@ public class GroupCursor<T, E extends Exception> implements ICursor<T, E> {
         public void beginGroup(T value) throws E {
         }
 
-        public boolean compare(T prev, T current) throws E {
-            return prev == null || current == null ? prev == current : prev
-                .equals(current);
-        }
-
         public void endGroup(T value) throws E {
         }
 
         public void onGroup(T value) throws E {
         }
 
+        public boolean sameGroup(T prev, T current) throws E {
+            return prev == null || current == null ? prev == current : prev
+                .equals(current);
+        }
+
     }
 
+    /**
+     * @author kotelnikov
+     * @param <T>
+     * @param <E>
+     */
     public static interface IGroupListener<T, E extends Exception> {
 
         /**
@@ -39,17 +44,6 @@ public class GroupCursor<T, E extends Exception> implements ICursor<T, E> {
          * @param value
          */
         void beginGroup(T value) throws E;
-
-        /**
-         * This method could be overloaded to re-define the comparison strategy
-         * of the given values.
-         * 
-         * @param prev previous value
-         * @param current the current value
-         * @return
-         * @throws E
-         */
-        boolean compare(T prev, T current) throws E;
 
         /**
          * This method is used to notify about the end of the group of values.
@@ -68,6 +62,17 @@ public class GroupCursor<T, E extends Exception> implements ICursor<T, E> {
          * @param value
          */
         void onGroup(T value) throws E;
+
+        /**
+         * This method could be overloaded to re-define the comparison strategy
+         * of the given values.
+         * 
+         * @param prev previous value
+         * @param current the current value
+         * @return
+         * @throws E
+         */
+        boolean sameGroup(T prev, T current) throws E;
 
     }
 
@@ -97,9 +102,11 @@ public class GroupCursor<T, E extends Exception> implements ICursor<T, E> {
      * @see org.webreformatter.commons.cursor.ICursor#close()
      */
     public void close() throws E {
-        onEndIterations();
-        fCursor.close();
-        fCursor = null;
+        if (fCursor != null) {
+            onEndIterations();
+            fCursor.close();
+            fCursor = null;
+        }
         fPrevValue = null;
     }
 
@@ -121,17 +128,17 @@ public class GroupCursor<T, E extends Exception> implements ICursor<T, E> {
         boolean result = false;
         if (fCursor.loadNext()) {
             result = true;
-            T fCurrent = fCursor.getCurrent();
+            T currentValue = fCursor.getCurrent();
             boolean equals = fPrevValue != null
-                && fListener.compare(fPrevValue, fCurrent);
+                && fListener.sameGroup(fPrevValue, currentValue);
             if (!equals) {
                 if (fPrevValue != null) {
                     fListener.endGroup(fPrevValue);
                 }
-                fListener.beginGroup(fCurrent);
+                fListener.beginGroup(currentValue);
             }
-            fListener.onGroup(fCurrent);
-            fPrevValue = fCurrent;
+            fListener.onGroup(currentValue);
+            fPrevValue = currentValue;
         } else {
             onEndIterations();
         }

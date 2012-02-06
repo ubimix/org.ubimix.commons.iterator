@@ -4,7 +4,6 @@
 package org.webreformatter.commons.cursor;
 
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * @author kotelnikov
@@ -49,11 +48,11 @@ public class DiffCursor<T, E extends Exception> implements ICursor<T, E> {
 
     private IDiffCursorListener<T, E> fDiffCursorListener;
 
+    private ICursor<T, E> fFirstCursor;
+
     private int fFirstStamp;
 
     private MergeCursor<T, E> fMergeCursor = new MergeCursor<T, E>() {
-
-        private ICursor<T, E> fFirstCursor;
 
         private int fGroupCounter;
 
@@ -73,12 +72,6 @@ public class DiffCursor<T, E extends Exception> implements ICursor<T, E> {
                     fDiffCursorListener.onValueAdded(fPrevValue);
                 }
             }
-        }
-
-        @Override
-        public void init(List<ICursor<T, E>> cursors) {
-            super.init(cursors);
-            fFirstCursor = cursors.get(0);
         }
 
         @Override
@@ -140,6 +133,7 @@ public class DiffCursor<T, E extends Exception> implements ICursor<T, E> {
         final ICursor<T, E> first,
         final ICursor<T, E> second,
         IDiffCursorListener<T, E> listener) {
+        fFirstCursor = first;
         Comparator<ICursor<T, E>> cursorComparator = new Comparator<ICursor<T, E>>() {
             public int compare(ICursor<T, E> o1, ICursor<T, E> o2) {
                 T v1 = o1.getCurrent();
