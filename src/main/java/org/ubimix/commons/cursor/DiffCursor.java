@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.webreformatter.commons.cursor;
+package org.ubimix.commons.cursor;
 
 import java.util.Comparator;
 
@@ -152,14 +152,14 @@ public class DiffCursor<T, E extends Exception> implements ICursor<T, E> {
     }
 
     /**
-     * @see org.webreformatter.commons.cursor.ICursor#close()
+     * @see org.ubimix.commons.cursor.ICursor#close()
      */
     public void close() throws E {
         fMergeCursor.close();
     }
 
     /**
-     * @see org.webreformatter.commons.cursor.ICursor#getCurrent()
+     * @see org.ubimix.commons.cursor.ICursor#getCurrent()
      */
     public T getCurrent() {
         return fMergeCursor.getCurrent();
@@ -170,7 +170,7 @@ public class DiffCursor<T, E extends Exception> implements ICursor<T, E> {
     }
 
     /**
-     * @see org.webreformatter.commons.cursor.ICursor#loadNext()
+     * @see org.ubimix.commons.cursor.ICursor#loadNext()
      */
     public boolean loadNext() throws E {
         return fMergeCursor.loadNext();

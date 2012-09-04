@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.webreformatter.commons.iterator;
+package org.ubimix.commons.iterator;
 
 import junit.framework.TestCase;
 

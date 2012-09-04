@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.webreformatter.commons.cursor;
+package org.ubimix.commons.cursor;
 
 /**
  * This cursor filters values from an another cursor and returns only accepted

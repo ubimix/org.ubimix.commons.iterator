@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.webreformatter.commons.cursor;
+package org.ubimix.commons.cursor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,10 +10,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.webreformatter.commons.cursor.DiffCursor.DiffCursorListener;
-import org.webreformatter.commons.cursor.DiffCursor.IDiffCursorListener;
-import org.webreformatter.commons.cursor.GroupCursor.GroupListener;
-import org.webreformatter.commons.cursor.GroupCursor.IGroupListener;
+import org.ubimix.commons.cursor.DiffCursor.DiffCursorListener;
+import org.ubimix.commons.cursor.DiffCursor.IDiffCursorListener;
+import org.ubimix.commons.cursor.GroupCursor.GroupListener;
+import org.ubimix.commons.cursor.GroupCursor.IGroupListener;
 
 /**
  * @author kotelnikov

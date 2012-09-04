@@ -1,4 +1,4 @@
-package org.webreformatter.commons.cursor;
+package org.ubimix.commons.cursor;
 
 import java.util.Comparator;
 

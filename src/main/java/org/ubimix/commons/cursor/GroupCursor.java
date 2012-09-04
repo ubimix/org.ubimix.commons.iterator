@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.webreformatter.commons.cursor;
+package org.ubimix.commons.cursor;
 
 /**
  * This cursor is used to notify about begins/ends of each group of values.
@@ -99,7 +99,7 @@ public class GroupCursor<T, E extends Exception> implements ICursor<T, E> {
     }
 
     /**
-     * @see org.webreformatter.commons.cursor.ICursor#close()
+     * @see org.ubimix.commons.cursor.ICursor#close()
      */
     public void close() throws E {
         if (fCursor != null) {
@@ -111,7 +111,7 @@ public class GroupCursor<T, E extends Exception> implements ICursor<T, E> {
     }
 
     /**
-     * @see org.webreformatter.commons.cursor.ICursor#getCurrent()
+     * @see org.ubimix.commons.cursor.ICursor#getCurrent()
      */
     public T getCurrent() {
         return fCursor.getCurrent();
@@ -122,7 +122,7 @@ public class GroupCursor<T, E extends Exception> implements ICursor<T, E> {
     }
 
     /**
-     * @see org.webreformatter.commons.cursor.ICursor#loadNext()
+     * @see org.ubimix.commons.cursor.ICursor#loadNext()
      */
     public boolean loadNext() throws E {
         boolean result = false;

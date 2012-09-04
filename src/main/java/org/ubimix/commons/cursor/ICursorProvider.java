@@ -1,4 +1,4 @@
-package org.webreformatter.commons.cursor;
+package org.ubimix.commons.cursor;
 
 /**
  * Cursor factory. Used to create new cursor instances.

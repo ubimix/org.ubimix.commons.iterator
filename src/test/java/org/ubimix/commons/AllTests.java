@@ -1,10 +1,10 @@
-package org.webreformatter.commons;
+package org.ubimix.commons;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.webreformatter.commons.cursor.CursorTest;
-import org.webreformatter.commons.iterator.ShiftIteratorIteratorTest;
+import org.ubimix.commons.cursor.CursorTest;
+import org.ubimix.commons.iterator.ShiftIteratorIteratorTest;
 
 public class AllTests {
 

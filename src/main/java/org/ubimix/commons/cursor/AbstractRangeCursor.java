@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.webreformatter.commons.cursor;
+package org.ubimix.commons.cursor;
 
 /**
  * This cursor selects and returns only specific sub-set (range) of elements

@@ -14,7 +14,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  * ************************************************************************** */
-package org.webreformatter.commons.iterator;
+package org.ubimix.commons.iterator;
 
 import java.util.Iterator;
 

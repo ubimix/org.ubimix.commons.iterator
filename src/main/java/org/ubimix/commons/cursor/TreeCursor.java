@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.webreformatter.commons.cursor;
+package org.ubimix.commons.cursor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public abstract class TreeCursor<T, E extends Exception>
     }
 
     /**
-     * @see org.webreformatter.commons.cursor.ICursor#close()
+     * @see org.ubimix.commons.cursor.ICursor#close()
      */
     public void close() throws E {
         while (!fStack.isEmpty()) {
@@ -53,14 +53,14 @@ public abstract class TreeCursor<T, E extends Exception>
     protected abstract ICursor<T, E> getChildren(T node) throws E;
 
     /**
-     * @see org.webreformatter.commons.cursor.ICursor#getCurrent()
+     * @see org.ubimix.commons.cursor.ICursor#getCurrent()
      */
     public T getCurrent() {
         return fCurrent;
     }
 
     /**
-     * @see org.webreformatter.commons.cursor.ICursor#loadNext()
+     * @see org.ubimix.commons.cursor.ICursor#loadNext()
      */
     public boolean loadNext() throws E {
         boolean result = false;

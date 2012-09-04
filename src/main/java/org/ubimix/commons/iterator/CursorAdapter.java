@@ -1,9 +1,9 @@
 /**
  * 
  */
-package org.webreformatter.commons.iterator;
+package org.ubimix.commons.iterator;
 
-import org.webreformatter.commons.cursor.ICursor;
+import org.ubimix.commons.cursor.ICursor;
 
 /**
  * @author kotelnikov
@@ -33,7 +33,7 @@ public class CursorAdapter<T, E extends Exception> extends ShiftIterator<T> {
     }
 
     /**
-     * @see org.webreformatter.commons.iterator.ShiftIterator#shiftItem()
+     * @see org.ubimix.commons.iterator.ShiftIterator#shiftItem()
      */
     @Override
     protected T shiftItem() {

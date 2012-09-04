@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ClassPath: .
-Bundle-SymbolicName: org.webreformatter.commons.iterator
-Bundle-Name: org.webreformatter.commons.iterator
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Bundle-Version: 1.1.5
+Bundle-SymbolicName: org.ubimix.commons.iterator
+Bundle-Name: org.ubimix.commons.iterator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Version: 1.2.1
 Bundle-ManifestVersion: 2
 Bundle-Description: JSON Library
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0
-Export-Package: org.webreformatter.commons.cursor;version="1.1.5",
- org.webreformatter.commons.iterator;version="1.1.5"
+Export-Package: org.ubimix.commons.cursor;version="1.2.1",
+ org.ubimix.commons.iterator;version="1.2.1"

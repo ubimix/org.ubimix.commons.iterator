@@ -1,4 +1,4 @@
-package org.webreformatter.commons.cursor;
+package org.ubimix.commons.cursor;
 
 /**
  * This implementation of the {@link ICursor} interface loads sequentially
